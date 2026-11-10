@@ -1,14 +1,108 @@
-# Python-generated files
+
+# Python cache
 __pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
+*.py[cod]
+*.pyo
 
 # Virtual environments
-.venv
+.venv/
+venv/
 
-# Datasets
-*.csv
-Notebooks/mlruns/
+# Data files - never push datasets
+data/**/*.csv
+data/**/*.xlsx
+data/**/*.parquet
+data/**/*.json
+
+# Model and preprocessing artifacts
+artifacts/**/*.pkl
+artifacts/**/*.joblib
+artifacts/**/*.model
+artifacts/**/*.bin
+
+# Logs
+artifacts/logs/
+*.log
+
+# MLflow tracking database
+mlflow.db
+mlflow.db-shm
+mlflow.db-wal
+
+# DVC cache
+.dvc/cache/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Environment variables / secrets
+.env
+.env.*
+
+# IDE files
+.vscode/
+.idea/
+
+
+# MLflow tracking data
+mlruns/
+**/mlruns/
+
+# MLflow database and tracking files
+mlflow.db
+mlflow.db-shm
+mlflow.db-wal
+
+# Dataset folders
+DataInput/
+data/
+
+# Generated model artifacts
+artifacts/
+*.pkl
+*.joblib
+*.model
+
+# Logs
+*.log
+
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+.env.*
+
+# IDE files
+.vscode/
+.idea/
+
+# MLflow tracking
+mlruns/
+**/mlruns/
+
+# MLflow databases
+mlflow.db
+mlflow.db-shm
+mlflow.db-wal
+
+# Data
+DataInput/
+data/
+
+# Generated artifacts
+artifacts/
+*.pkl
+*.skops
+*.joblib
+*.ubj
+*.model
+
+# Logs
+*.log

@@ -2055,6 +2055,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pathlib"
+version = "1.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ac/aa/9b065a76b9af472437a0059f77e8f962fe350438b927cb80184c32f075eb/pathlib-1.0.1.tar.gz", hash = "sha256:6940718dfc3eff4258203ad5021090933e5c04707d5ca8cc9e73c94a7894ea9f", size = 49298, upload-time = "2014-09-03T15:41:57.18Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/78/f9/690a8600b93c332de3ab4a344a4ac34f00c8f104917061f779db6a918ed6/pathlib-1.0.1-py3-none-any.whl", hash = "sha256:f35f95ab8b0f59e6d354090350b44a80a80635d22efdedfa84c7ad1cf0a74147", size = 14363, upload-time = "2022-05-04T13:37:20.585Z" },
+]
+
+[[package]]
 name = "pexpect"
 version = "4.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2257,6 +2266,30 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e4/11/b213bebff182584360cb8d17c72c1677fec5c5c228de439e63bcf8ab1c8f/pyparsing-3.3.3.tar.gz", hash = "sha256:928ae7e20211f3b6f3915a72f06a0cfd29ab9d24279dd6346b6b1a7146397d36", size = 1050487, upload-time = "2026-09-20T20:59:05.609Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/38/bb/d215ee7c73b61497b28a5503f9f53523f294fcc936762b7caf90e0c1c2b5/pyparsing-3.3.3-py3-none-any.whl", hash = "sha256:ece8c00a69cf01b45d0b1dedabb469c90d8caf996d4fda40f147627a122849a4", size = 126420, upload-time = "2026-09-20T20:59:04.025Z" },
+]
+
+[[package]]
+name = "python-box"
+version = "8.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/97/ce/df1cf9e32333c6d73714666add114e2de2c6e35f20908f963c1eef7dafdf/python_box-8.0.0.tar.gz", hash = "sha256:13b103ba7a4a1f2f6bcf8ee7eb2580ddebdc73ab728850965f578fc4b9e890bf", size = 104723, upload-time = "2026-11-04T14:44:19.529Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1b/02/bafed35c4e26a592ffc6dd865e75219a0393b60ac69c51f5524d9eb27c37/python_box-8.0.0-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:b822cbad9606a4f3c1f4f611bcf1dd8194ed4e85b1eebea846a144aceac12b11", size = 2723170, upload-time = "2026-11-04T14:43:51.164Z" },
+    { url = "https://files.pythonhosted.org/packages/e9/57/e44fd2291c8bb713b09566b53648cc8f066ee8095e7524e86f0aaaed980b/python_box-8.0.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:063f80879241ec9d7d94b4c885ce9442ca7bd14e30d60d93758b4405ab598b22", size = 6468098, upload-time = "2026-11-04T14:43:53.47Z" },
+    { url = "https://files.pythonhosted.org/packages/4c/8e/cc1f8a6bb21d299161de62cccc523358c9c7dc71fc174b72135be846111e/python_box-8.0.0-cp311-cp311-win_amd64.whl", hash = "sha256:f928a2329dbae535cfe35c3cdc923d39c67da92290f9425f797b3f5b5a16f22a", size = 1892268, upload-time = "2026-11-04T14:43:55.134Z" },
+    { url = "https://files.pythonhosted.org/packages/47/e1/1d771b626de0c3fc6aeec13c40a105ba9d0dfe930539fdb0898afea3e2f2/python_box-8.0.0-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:bb734a55b44b171592d1980ed5e115b6e4c1a39341e1505316fa7044e942de6b", size = 2729309, upload-time = "2026-11-04T14:43:57.257Z" },
+    { url = "https://files.pythonhosted.org/packages/f9/8e/f0c25ae2cfd0ae2b456c125b151ef07edcf0dc34999a3b89e657145bfd2d/python_box-8.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:c564fcdc131a967fa02d4c3936d5c88abbf6742f995fcbea439c6b531e4fb990", size = 6514425, upload-time = "2026-11-04T14:43:58.966Z" },
+    { url = "https://files.pythonhosted.org/packages/87/f2/2cedbfdcde03a77a6f1efe69b3357c9dcbd30dc82b1173b06812133a41bc/python_box-8.0.0-cp312-cp312-win_amd64.whl", hash = "sha256:518e4e4e7cd9983fb36d2ee5a5e816117fa7a22c9a4dbcace303513d337bad9d", size = 1861668, upload-time = "2026-11-04T14:44:00.81Z" },
+    { url = "https://files.pythonhosted.org/packages/47/8d/7988949694de762a1b1df1694a4c512e5479f52767c54ab0bb12bfc0c520/python_box-8.0.0-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:b8b256e47e05ed5c220b4ad0761afa77238a53e1a4668335b981fc506bd285f4", size = 2718768, upload-time = "2026-11-04T14:44:02.348Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/4e/4719739c60f9752e4c40eea82833028af6779d83a6e355a61ccb3f1620e2/python_box-8.0.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:27581f8d5846cf31e34af9bffa145745bfe4f3b1da25df1b9b1a575b03c66b08", size = 6466457, upload-time = "2026-11-04T14:44:04.388Z" },
+    { url = "https://files.pythonhosted.org/packages/89/52/f4e738ff65259cad50e3a2b13ca0ba0a9fe544174ce3575b004b6fd26ae4/python_box-8.0.0-cp313-cp313-win_amd64.whl", hash = "sha256:3b041515955e946c2dcfbd4c2d89a61429ec79d1ccdf59a2c9b83b244bcdb142", size = 1857483, upload-time = "2026-11-04T14:44:05.932Z" },
+    { url = "https://files.pythonhosted.org/packages/db/46/38a1bd48810f992e0fad7f75e6ab791962b9c3fbe74ae0e9ecab662b77ce/python_box-8.0.0-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:b1f6cd1f9d9ace877dc26543fbcb0f894355e89b40e0c8f94e386ba1fe0092d2", size = 2736183, upload-time = "2026-11-04T14:44:07.553Z" },
+    { url = "https://files.pythonhosted.org/packages/f8/58/fcf4111a86f3cd143059fc6cbf434dc3a211b105bc3db144dd22c0283925/python_box-8.0.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9a7ff2abef162e53f289da382cf72b436e77a541ca6819e5755ea37257f6e98d", size = 6382305, upload-time = "2026-11-04T14:44:09.22Z" },
+    { url = "https://files.pythonhosted.org/packages/be/0b/15636c9a7f3ee02af365f0d8d8f73d64fbff80d62ac384c40d136f10d42c/python_box-8.0.0-cp314-cp314-win_amd64.whl", hash = "sha256:15bcea5c9daefc0169ca7416358df8f260fc2e4fd83c53d7fdb0353000a2d9c9", size = 1852106, upload-time = "2026-11-04T14:44:10.977Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/7b/0bc1c67d85133f74c032cd4a8441e5bafd7dbb616af99e4acc89fa8d12d8/python_box-8.0.0-cp315-cp315-macosx_10_15_universal2.whl", hash = "sha256:7a5f47b0cdd1deca13dbde66c26b2187020f9ed1349fc0dc7f29f62f0cb2df4a", size = 2730681, upload-time = "2026-11-04T14:44:12.605Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/5d/62a96969cffe67e5a6c12219d511ece796a03f7673daafe55122915a65f4/python_box-8.0.0-cp315-cp315-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:dec04be175683f9030a13d2d526f45aa53b26d469c1140dad86e094ea46427ee", size = 6410644, upload-time = "2026-11-04T14:44:14.527Z" },
+    { url = "https://files.pythonhosted.org/packages/02/1c/ba6c9205eb1448e11f5814ba56c6837e9aff552f388958d6557092cb14a0/python_box-8.0.0-cp315-cp315-win_amd64.whl", hash = "sha256:50fb4990ca40dee5a0401bde799867ea80104bf844bda8c5dad0cb9f5244117e", size = 1852786, upload-time = "2026-11-04T14:44:16.72Z" },
+    { url = "https://files.pythonhosted.org/packages/f4/24/005d31dc84fb3fe4ebd51870063efa4555a95a188ccb1a5aa95c53eedbcf/python_box-8.0.0-py3-none-any.whl", hash = "sha256:3da1cdae8bdfef708f4b0e49899093d0e71af432e2078c09bfc90963f11e1d66", size = 44322, upload-time = "2026-11-04T14:44:18.134Z" },
 ]
 
 [[package]]
@@ -3010,6 +3043,9 @@ dependencies = [
     { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "optuna" },
     { name = "pandas" },
+    { name = "pathlib" },
+    { name = "python-box" },
+    { name = "pyyaml" },
     { name = "scikit-learn" },
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
@@ -3026,6 +3062,9 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.4.6" },
     { name = "optuna", specifier = ">=5.0.0" },
     { name = "pandas", specifier = ">=3.1.0" },
+    { name = "pathlib", specifier = ">=1.0.1" },
+    { name = "python-box", specifier = ">=8.0.0" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "scikit-learn", specifier = ">=1.9.1" },
     { name = "scipy", specifier = ">=1.17.1" },
     { name = "seaborn", specifier = ">=0.13.2" },

@@ -14,6 +14,9 @@ dependencies = [
     "numpy>=2.4.6",
     "optuna>=5.0.0",
     "pandas>=3.1.0",
+    "pathlib>=1.0.1",
+    "python-box>=8.0.0",
+    "pyyaml>=6.0.3",
     "scikit-learn>=1.9.1",
     "scipy>=1.17.1",
     "seaborn>=0.13.2",
@@ -21,8 +24,12 @@ dependencies = [
 ]
 
 [project.scripts]
-telecom-churn-prediction = "telecom_churn_prediction:main"
+telecom-churn-prediction = "telecom_churn:main"
 
 [build-system]
 requires = ["uv_build>=0.13.7,<0.14.0"]
 build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "telecom_churn"
+module-root = "src"

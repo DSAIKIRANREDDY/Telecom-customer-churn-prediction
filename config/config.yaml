@@ -1,0 +1,110 @@
+
+# Project configuration
+artifacts:
+  root_dir: artifacts
+  models_dir: artifacts/models
+  preprocessors_dir: artifacts/preprocessors
+  reports_dir: artifacts/reports
+
+
+# Data ingestion configuration
+data_ingestion:
+  source_data_path: DataInput/telecom_churn_100k.csv
+  ingested_data_dir: data/interim
+  ingested_data_file: telecom_churn.csv
+
+
+# Data validation configuration
+data_validation:
+  input_data_path: data/interim/telecom_churn.csv
+  schema_path: config/schema.yaml
+  validated_data_dir: data/validated
+  validated_data_file: validated_data.csv
+  validation_status_file: validation_status.json
+
+
+# Data preprocessing configuration
+data_preprocessing:
+  input_data_path: data/validated/validated_data.csv
+  preprocessed_data_dir: data/processed
+
+  train_data_file: train.csv
+  validation_data_file: validation.csv
+  test_data_file: test.csv
+
+  test_size: 0.20
+  validation_size: 0.20
+  random_state: 42
+
+  numerical:
+    imputer: median
+    scaler: standard
+
+  categorical:
+    imputer: most_frequent
+    encoder: onehot
+
+  ordinal:
+    imputer: most_frequent
+    encoder: ordinal
+
+  binary:
+    imputer: most_frequent
+    encoder: ordinal
+
+  output:
+    preprocessor_path: artifacts/preprocessors/preprocessor.pkl
+
+
+# Feature engineering configuration
+feature_engineering:
+  input_data_dir: data/processed
+  train_data_file: train.csv
+  validation_data_file: validation.csv
+  test_data_file: test.csv
+  output_data_dir: data/featured
+  train_output_file: train_featured.csv
+  validation_output_file: validation_featured.csv
+  test_output_file: test_featured.csv
+
+
+# Model training configuration
+model_training:
+  train_data_path: data/featured/train_featured.csv
+  model_output_dir: artifacts/models
+  model_name: xgboost_model.pkl
+  algorithm: xgboost
+  random_state: 42
+
+
+# Model tuning configuration
+model_tuning:
+  train_data_path: data/featured/train_featured.csv
+  model_output_dir: artifacts/models
+  best_model_name: best_xgboost_model.pkl
+  n_trials: 50
+  cv_folds: 3
+  scoring: average_precision
+  random_state: 42
+
+
+# Model evaluation configuration
+model_evaluation:
+  test_data_path: data/featured/test_featured.csv
+  model_path: artifacts/models/best_xgboost_model.pkl
+  report_output_dir: artifacts/reports
+  classification_report_file: classification_report.json
+  confusion_matrix_file: confusion_matrix.png
+  threshold: 0.30
+
+
+# MLflow configuration
+mlflow:
+  experiment_name: Telecom-Churn-Prediction
+  tracking_uri: sqlite:///mlflow.db
+
+logging:
+  level: INFO
+  log_file: artifacts/logs/telecom_churn.log
+  log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
