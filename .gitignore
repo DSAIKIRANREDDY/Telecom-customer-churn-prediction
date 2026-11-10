@@ -106,3 +106,14 @@ artifacts/
 
 # Logs
 *.log
+**/mlruns/
+**/mlflow.db
+**/mlflow.db-shm
+**/mlflow.db-wal
+DataInput/
+data/
+artifacts/
+*.pkl
+*.skops
+*.joblib
+*.ubj
