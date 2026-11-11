@@ -18,7 +18,6 @@ class DataValidationConfig:
     validated_data_file: str
     validation_status_file: str
 
-
 @dataclass(frozen=True)
 class DataPreprocessingConfig:
     input_data_path: Path
@@ -32,19 +31,8 @@ class DataPreprocessingConfig:
     validation_size: float
     random_state: int
 
-    numerical_imputer: str
-    numerical_scaler: str
+    target_column: str
 
-    categorical_imputer: str
-    categorical_encoder: str
-
-    ordinal_imputer: str
-    ordinal_encoder: str
-
-    binary_imputer: str
-    binary_encoder: str
-
-    preprocessor_path: Path
 
 
 @dataclass(frozen=True)
@@ -65,17 +53,16 @@ class FeatureEngineeringConfig:
 class ModelTrainingConfig:
     train_data_path: Path
     model_output_dir: Path
-    model_name: str
-    algorithm: str
     random_state: int
+    algorithms: list[str]
 
 
 @dataclass(frozen=True)
 class ModelTuningConfig:
     train_data_path: Path
+    validation_data_path: Path
     model_output_dir: Path
     best_model_name: str
-
     n_trials: int
     cv_folds: int
     scoring: str

@@ -9,7 +9,7 @@ artifacts:
 
 # Data ingestion configuration
 data_ingestion:
-  source_data_path: DataInput/telecom_churn_100k.csv
+  source_data_path: DataInput/Telco-Customer-Churn.csv
   ingested_data_dir: data/interim
   ingested_data_file: telecom_churn.csv
 
@@ -36,24 +36,7 @@ data_preprocessing:
   validation_size: 0.20
   random_state: 42
 
-  numerical:
-    imputer: median
-    scaler: standard
-
-  categorical:
-    imputer: most_frequent
-    encoder: onehot
-
-  ordinal:
-    imputer: most_frequent
-    encoder: ordinal
-
-  binary:
-    imputer: most_frequent
-    encoder: ordinal
-
-  output:
-    preprocessor_path: artifacts/preprocessors/preprocessor.pkl
+  target_column: Churn
 
 
 # Feature engineering configuration
@@ -71,17 +54,19 @@ feature_engineering:
 # Model training configuration
 model_training:
   train_data_path: data/featured/train_featured.csv
-  model_output_dir: artifacts/models
-  model_name: xgboost_model.pkl
-  algorithm: xgboost
+  model_output_dir: artifacts/models/trained
   random_state: 42
-
+  algorithms:
+    - logistic_regression
+    - random_forest
+    - xgboost
 
 # Model tuning configuration
 model_tuning:
   train_data_path: data/featured/train_featured.csv
-  model_output_dir: artifacts/models
-  best_model_name: best_xgboost_model.pkl
+  validation_data_path: data/featured/validation_featured.csv
+  model_output_dir: artifacts/models/tuned
+  best_model_name: best_model.pkl
   n_trials: 50
   cv_folds: 3
   scoring: average_precision

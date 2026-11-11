@@ -1,0 +1,62 @@
+
+columns:
+  customerID: string
+  gender: string
+  SeniorCitizen: int64
+  Partner: string
+  Dependents: string
+  tenure: int64
+  PhoneService: string
+  MultipleLines: string
+  InternetService: string
+  OnlineSecurity: string
+  OnlineBackup: string
+  DeviceProtection: string
+  TechSupport: string
+  StreamingTV: string
+  StreamingMovies: string
+  Contract: string
+  PaperlessBilling: string
+  PaymentMethod: string
+  MonthlyCharges: float64
+  TotalCharges: string
+  Churn: string
+
+target_column: Churn
+
+target_values:
+  - "Yes"
+  - "No"
+
+numerical_columns:
+  - SeniorCitizen
+  - tenure
+  - MonthlyCharges
+
+categorical_columns:
+  - gender
+  - Partner
+  - Dependents
+  - PhoneService
+  - MultipleLines
+  - InternetService
+  - OnlineSecurity
+  - OnlineBackup
+  - DeviceProtection
+  - TechSupport
+  - StreamingTV
+  - StreamingMovies
+  - Contract
+  - PaperlessBilling
+  - PaymentMethod
+  - TotalCharges
+
+identifier_columns:
+  - customerID
+
+unique_columns:
+  - customerID
+
+blank_allowed_columns:
+  - TotalCharges
+  

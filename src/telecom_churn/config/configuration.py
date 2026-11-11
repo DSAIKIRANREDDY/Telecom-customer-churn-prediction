@@ -92,40 +92,27 @@ class ConfigurationManager:
         config = self.config.data_preprocessing
 
         preprocessing_config = DataPreprocessingConfig(
-            input_data_path=self._resolve_path(config.input_data_path),
-            preprocessed_data_dir=self._resolve_path(config.preprocessed_data_dir),
-
+            input_data_path=self._resolve_path(
+                config.input_data_path
+            ),
+            preprocessed_data_dir=self._resolve_path(
+                config.preprocessed_data_dir
+            ),
             train_data_file=config.train_data_file,
             validation_data_file=config.validation_data_file,
             test_data_file=config.test_data_file,
-
             test_size=config.test_size,
             validation_size=config.validation_size,
             random_state=config.random_state,
-
-            numerical_imputer=config.numerical.imputer,
-            numerical_scaler=config.numerical.scaler,
-
-            categorical_imputer=config.categorical.imputer,
-            categorical_encoder=config.categorical.encoder,
-
-            ordinal_imputer=config.ordinal.imputer,
-            ordinal_encoder=config.ordinal.encoder,
-
-            binary_imputer=config.binary.imputer,
-            binary_encoder=config.binary.encoder,
-
-            preprocessor_path=self._resolve_path(
-                config.output.preprocessor_path
-            )
+            target_column=config.target_column
         )
 
         create_directories([
-            preprocessing_config.preprocessed_data_dir,
-            preprocessing_config.preprocessor_path.parent
+            preprocessing_config.preprocessed_data_dir
         ])
 
         return preprocessing_config
+
 
 
     def get_feature_engineering_config(self) -> FeatureEngineeringConfig:
@@ -152,6 +139,7 @@ class ConfigurationManager:
         return feature_config
 
 
+    
     def get_model_training_config(self) -> ModelTrainingConfig:
 
         config = self.config.model_training
@@ -159,9 +147,8 @@ class ConfigurationManager:
         training_config = ModelTrainingConfig(
             train_data_path=self._resolve_path(config.train_data_path),
             model_output_dir=self._resolve_path(config.model_output_dir),
-            model_name=config.model_name,
-            algorithm=config.algorithm,
-            random_state=config.random_state
+            random_state=config.random_state,
+            algorithms=config.algorithms
         )
 
         create_directories([
@@ -170,13 +157,14 @@ class ConfigurationManager:
 
         return training_config
 
-
+    
     def get_model_tuning_config(self) -> ModelTuningConfig:
 
         config = self.config.model_tuning
 
         tuning_config = ModelTuningConfig(
             train_data_path=self._resolve_path(config.train_data_path),
+            validation_data_path=self._resolve_path(config.validation_data_path),
             model_output_dir=self._resolve_path(config.model_output_dir),
             best_model_name=config.best_model_name,
             n_trials=config.n_trials,
