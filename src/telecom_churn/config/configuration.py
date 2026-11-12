@@ -9,6 +9,7 @@ from telecom_churn.entity.config_entity import (
     DataValidationConfig,
     DataPreprocessingConfig,
     FeatureEngineeringConfig,
+    ModelComparisonConfig,  
     ModelTrainingConfig,
     ModelTuningConfig,
     ModelEvaluationConfig,
@@ -157,6 +158,31 @@ class ConfigurationManager:
 
         return training_config
 
+
+ 
+    def get_model_comparison_config(self) -> ModelComparisonConfig:
+
+        config = self.config.model_comparison
+
+        comparison_config = ModelComparisonConfig(
+            validation_data_path=self._resolve_path(
+                config.validation_data_path
+            ),
+            model_dir=self._resolve_path(config.model_dir),
+            report_output_dir=self._resolve_path(
+                config.report_output_dir
+            ),
+            comparison_report_file=config.comparison_report_file,
+            threshold=config.threshold
+        )
+
+        create_directories([
+            comparison_config.report_output_dir
+        ])
+
+        return comparison_config
+
+
     
     def get_model_tuning_config(self) -> ModelTuningConfig:
 
@@ -167,6 +193,7 @@ class ConfigurationManager:
             validation_data_path=self._resolve_path(config.validation_data_path),
             model_output_dir=self._resolve_path(config.model_output_dir),
             best_model_name=config.best_model_name,
+            algorithms=config.algorithms,
             n_trials=config.n_trials,
             cv_folds=config.cv_folds,
             scoring=config.scoring,

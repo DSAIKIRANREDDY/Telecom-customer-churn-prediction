@@ -58,11 +58,21 @@ class ModelTrainingConfig:
 
 
 @dataclass(frozen=True)
+class ModelComparisonConfig:
+    validation_data_path: Path
+    model_dir: Path
+    report_output_dir: Path
+    comparison_report_file: str
+    threshold: float
+
+
+@dataclass(frozen=True)
 class ModelTuningConfig:
     train_data_path: Path
     validation_data_path: Path
     model_output_dir: Path
     best_model_name: str
+    algorithms: list[str]
     n_trials: int
     cv_folds: int
     scoring: str

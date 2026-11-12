@@ -61,12 +61,25 @@ model_training:
     - random_forest
     - xgboost
 
+
+# Model comparison configuration
+model_comparison:
+  validation_data_path: data/featured/validation_featured.csv
+  model_dir: artifacts/models/trained
+  report_output_dir: artifacts/reports
+  comparison_report_file: model_comparison.json
+  threshold: 0.5
+
+
 # Model tuning configuration
 model_tuning:
   train_data_path: data/featured/train_featured.csv
   validation_data_path: data/featured/validation_featured.csv
   model_output_dir: artifacts/models/tuned
   best_model_name: best_model.pkl
+  algorithms:
+    - logistic_regression
+    - xgboost
   n_trials: 50
   cv_folds: 3
   scoring: average_precision
