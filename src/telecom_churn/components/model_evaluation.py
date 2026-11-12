@@ -61,16 +61,34 @@ class ModelEvaluation:
             if y.isnull().any():
                 raise ValueError("Unexpected target values found")
 
+            model_directories = [
+                self.config.model_dir,
+                self.config.tuned_model_dir
+            ]
+
+            model_paths = []
+
+            for directory in model_directories:
+                if not directory.exists():
+                    raise FileNotFoundError(
+                        f"Model directory not found: {directory}"
+                    )
+
+                model_paths.extend(directory.glob("*.pkl"))
+
+            if not model_paths:
+                raise FileNotFoundError("No model files found")
+
             # Step 4: Evaluate each trained model
             results = {}
 
-            for model_file in self.config.model_dir.glob("*.pkl"):
+            for model_path in model_paths:
 
-                algorithm = model_file.stem.replace("_model", "")
+                algorithm = model_path.stem.replace("_model", "")
 
                 logger.info("Evaluating model: %s", algorithm)
 
-                model = joblib.load(model_file)
+                model = joblib.load(model_path)
 
                 # Predicted probabilities
                 probabilities = model.predict_proba(X)[:, 1]
@@ -108,7 +126,7 @@ class ModelEvaluation:
 
             if not results:
                 raise FileNotFoundError(
-                    f"No trained model files found in {self.config.model_dir}"
+                    "No models were evaluated from the configured model directories"
                 )
 
             # Step 5: Save comparison report

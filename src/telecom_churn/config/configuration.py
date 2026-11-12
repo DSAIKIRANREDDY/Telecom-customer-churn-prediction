@@ -12,6 +12,7 @@ from telecom_churn.entity.config_entity import (
     ModelComparisonConfig,  
     ModelTrainingConfig,
     ModelTuningConfig,
+    ThresholdOptimizationConfig,
     ModelEvaluationConfig,
     MLflowConfig
 )
@@ -169,6 +170,7 @@ class ConfigurationManager:
                 config.validation_data_path
             ),
             model_dir=self._resolve_path(config.model_dir),
+            tuned_model_dir=self._resolve_path(config.tuned_model_dir),
             report_output_dir=self._resolve_path(
                 config.report_output_dir
             ),
@@ -205,6 +207,25 @@ class ConfigurationManager:
         ])
 
         return tuning_config
+
+
+    def get_threshold_optimization_config(self) -> ThresholdOptimizationConfig:
+
+        config = self.config.threshold_optimization
+
+        create_directories([
+            config.report_output_dir
+        ])
+
+        threshold_optimization_config = ThresholdOptimizationConfig(
+            validation_data_path=Path(config.validation_data_path),
+            model_path=Path(config.model_path),
+            report_output_dir=Path(config.report_output_dir),
+            report_file=config.report_file,
+            thresholds=config.thresholds
+        )
+
+        return threshold_optimization_config
 
 
     def get_model_evaluation_config(self) -> ModelEvaluationConfig:

@@ -66,6 +66,7 @@ model_training:
 model_comparison:
   validation_data_path: data/featured/validation_featured.csv
   model_dir: artifacts/models/trained
+  tuned_model_dir: artifacts/models/tuned
   report_output_dir: artifacts/reports
   comparison_report_file: model_comparison.json
   threshold: 0.5
@@ -84,6 +85,23 @@ model_tuning:
   cv_folds: 3
   scoring: average_precision
   random_state: 42
+
+
+threshold_optimization:
+  validation_data_path: data/featured/validation_featured.csv
+  model_path: artifacts/models/tuned/xgboost_tuned_model.pkl
+  report_output_dir: artifacts/reports
+  report_file: threshold_optimization.json
+  thresholds:
+    - 0.1
+    - 0.2
+    - 0.3
+    - 0.4
+    - 0.5
+    - 0.6
+    - 0.7
+    - 0.8
+    - 0.9
 
 
 # Model evaluation configuration

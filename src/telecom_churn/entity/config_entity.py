@@ -61,6 +61,7 @@ class ModelTrainingConfig:
 class ModelComparisonConfig:
     validation_data_path: Path
     model_dir: Path
+    tuned_model_dir: Path
     report_output_dir: Path
     comparison_report_file: str
     threshold: float
@@ -77,6 +78,15 @@ class ModelTuningConfig:
     cv_folds: int
     scoring: str
     random_state: int
+
+
+@dataclass(frozen=True)
+class ThresholdOptimizationConfig:
+    validation_data_path: Path
+    model_path: Path
+    report_output_dir: Path
+    report_file: str
+    thresholds: list[float]
 
 
 @dataclass(frozen=True)
