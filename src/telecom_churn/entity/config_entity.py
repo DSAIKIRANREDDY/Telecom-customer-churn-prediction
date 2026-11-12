@@ -94,7 +94,6 @@ class ModelEvaluationConfig:
     test_data_path: Path
     model_path: Path
     report_output_dir: Path
-
     classification_report_file: str
     confusion_matrix_file: str
     threshold: float

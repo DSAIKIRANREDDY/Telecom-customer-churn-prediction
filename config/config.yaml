@@ -107,11 +107,11 @@ threshold_optimization:
 # Model evaluation configuration
 model_evaluation:
   test_data_path: data/featured/test_featured.csv
-  model_path: artifacts/models/best_xgboost_model.pkl
+  model_path: artifacts/models/tuned/xgboost_tuned_model.pkl
   report_output_dir: artifacts/reports
   classification_report_file: classification_report.json
   confusion_matrix_file: confusion_matrix.png
-  threshold: 0.30
+  threshold: 0.63
 
 
 # MLflow configuration

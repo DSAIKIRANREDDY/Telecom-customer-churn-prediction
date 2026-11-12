@@ -232,21 +232,20 @@ class ConfigurationManager:
 
         config = self.config.model_evaluation
 
-        evaluation_config = ModelEvaluationConfig(
-            test_data_path=self._resolve_path(config.test_data_path),
-            model_path=self._resolve_path(config.model_path),
-            report_output_dir=self._resolve_path(config.report_output_dir),
+        create_directories([
+            config.report_output_dir
+        ])
 
+        model_evaluation_config = ModelEvaluationConfig(
+            test_data_path=PROJECT_ROOT / config.test_data_path,
+            model_path=PROJECT_ROOT / config.model_path,
+            report_output_dir=PROJECT_ROOT / config.report_output_dir,
             classification_report_file=config.classification_report_file,
             confusion_matrix_file=config.confusion_matrix_file,
             threshold=config.threshold
         )
 
-        create_directories([
-            evaluation_config.report_output_dir
-        ])
-
-        return evaluation_config
+        return model_evaluation_config
 
 
     def get_mlflow_config(self) -> MLflowConfig:
