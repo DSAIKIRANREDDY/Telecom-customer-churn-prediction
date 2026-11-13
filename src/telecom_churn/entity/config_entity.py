@@ -89,6 +89,35 @@ class ThresholdOptimizationConfig:
     thresholds: list[float]
 
 
+
+@dataclass(frozen=True)
+class ModelInterpretabilityConfig:
+    validation_data_path: Path
+    model_path: Path
+    schema_path: Path
+    report_output_dir: Path
+    feature_importance_file: str
+    feature_importance_plot: str
+    top_n_features: int
+    random_state: int
+    transformed_feature_importance_file: str
+
+
+@dataclass(frozen=True)
+class ModelExplainabilityConfig:
+    validation_data_path: Path
+    model_path: Path
+    schema_path: Path
+    report_output_dir: Path
+    shap_summary_plot: str
+    local_explanation_dir: str
+    sample_size: int
+    random_state: int
+    top_n_features: int
+
+
+
+
 @dataclass(frozen=True)
 class ModelEvaluationConfig:
     test_data_path: Path

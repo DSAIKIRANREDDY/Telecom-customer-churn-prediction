@@ -114,6 +114,31 @@ model_evaluation:
   threshold: 0.63
 
 
+model_interpretability:
+  validation_data_path: data/featured/validation_featured.csv
+  model_path: artifacts/models/tuned/xgboost_tuned_model.pkl
+  schema_path: config/schema.yaml
+  report_output_dir: artifacts/reports/interpretability
+  feature_importance_file: feature_importance.csv
+  feature_importance_plot: feature_importance.png
+  top_n_features: 20
+  random_state: 42
+  transformed_feature_importance_file: transformed_feature_importance.csv
+
+
+model_explainability:
+  validation_data_path: data/featured/validation_featured.csv
+  model_path: artifacts/models/tuned/xgboost_tuned_model.pkl
+  schema_path: config/schema.yaml
+  report_output_dir: artifacts/reports/explainability
+  shap_summary_plot: shap_summary.png
+  local_explanation_dir: local_explanations
+  sample_size: 200
+  random_state: 42
+  top_n_features: 20
+
+
+
 # MLflow configuration
 mlflow:
   experiment_name: Telecom-Churn-Prediction

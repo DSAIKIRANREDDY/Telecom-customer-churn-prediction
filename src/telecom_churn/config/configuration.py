@@ -14,7 +14,9 @@ from telecom_churn.entity.config_entity import (
     ModelTuningConfig,
     ThresholdOptimizationConfig,
     ModelEvaluationConfig,
-    MLflowConfig
+    MLflowConfig,
+    ModelInterpretabilityConfig,
+    ModelExplainabilityConfig
 )
 
 
@@ -255,4 +257,42 @@ class ConfigurationManager:
         return MLflowConfig(
             experiment_name=config.experiment_name,
             tracking_uri=config.tracking_uri
+        )
+
+
+
+
+    def get_model_interpretability_config(self) -> ModelInterpretabilityConfig:
+        config = self.config.model_interpretability
+
+        create_directories([self._resolve_path(config.report_output_dir)])
+
+        return ModelInterpretabilityConfig(
+            validation_data_path=self._resolve_path(config.validation_data_path),
+            model_path=self._resolve_path(config.model_path),
+            schema_path=self._resolve_path(config.schema_path),
+            report_output_dir=self._resolve_path(config.report_output_dir),
+            feature_importance_file=config.feature_importance_file,
+            feature_importance_plot=config.feature_importance_plot,
+            top_n_features=config.top_n_features,
+            random_state=config.random_state,
+            transformed_feature_importance_file=config.transformed_feature_importance_file
+        )
+
+
+    def get_model_explainability_config(self) -> ModelExplainabilityConfig:
+        config = self.config.model_explainability
+
+        create_directories([self._resolve_path(config.report_output_dir)])
+
+        return ModelExplainabilityConfig(
+            validation_data_path=self._resolve_path(config.validation_data_path),
+            model_path=self._resolve_path(config.model_path),
+            schema_path=self._resolve_path(config.schema_path),
+            report_output_dir=self._resolve_path(config.report_output_dir),
+            shap_summary_plot=config.shap_summary_plot,
+            local_explanation_dir=config.local_explanation_dir,
+            sample_size=config.sample_size,
+            random_state=config.random_state,
+            top_n_features=config.top_n_features
         )
