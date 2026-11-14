@@ -11,12 +11,15 @@ def test_model_interpretability():
 
     model_interpretability = ModelInterpretability(config)
 
-    feature_importance = (
+    feature_importance, permutation_df = (
         model_interpretability.initiate_model_interpretability()
     )
 
     print("\nTop 20 Transformed Feature Importance:")
     print(feature_importance.head(20))
+
+    print("\nTop 20 Permutation Feature Importance:")
+    print(permutation_df.head(20))
 
 
 if __name__ == "__main__":

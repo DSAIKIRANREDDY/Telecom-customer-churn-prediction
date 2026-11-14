@@ -101,6 +101,10 @@ class ModelInterpretabilityConfig:
     top_n_features: int
     random_state: int
     transformed_feature_importance_file: str
+    permutation_scoring: str
+    permutation_n_repeats: int
+    permutation_importance_file: str
+    permutation_importance_plot: str
 
 
 @dataclass(frozen=True)

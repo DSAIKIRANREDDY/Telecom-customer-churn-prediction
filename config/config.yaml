@@ -124,6 +124,10 @@ model_interpretability:
   top_n_features: 20
   random_state: 42
   transformed_feature_importance_file: transformed_feature_importance.csv
+  permutation_scoring: average_precision
+  permutation_n_repeats: 5
+  permutation_importance_file: permutation_importance.csv
+  permutation_importance_plot: permutation_importance.png
 
 
 model_explainability:

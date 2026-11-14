@@ -276,7 +276,11 @@ class ConfigurationManager:
             feature_importance_plot=config.feature_importance_plot,
             top_n_features=config.top_n_features,
             random_state=config.random_state,
-            transformed_feature_importance_file=config.transformed_feature_importance_file
+            transformed_feature_importance_file=config.transformed_feature_importance_file,
+            permutation_scoring=config.permutation_scoring,
+            permutation_n_repeats=config.permutation_n_repeats,
+            permutation_importance_file=config.permutation_importance_file,
+            permutation_importance_plot=config.permutation_importance_plot
         )
 
 
