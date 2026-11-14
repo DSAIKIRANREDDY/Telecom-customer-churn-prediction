@@ -13,3 +13,10 @@ print("\nFeature Engineering Output:")
 
 for name, path in output_paths.items():
     print(f"{name} -> {path}")
+
+import pandas as pd
+df = pd.read_csv("data/featured/train_featured.csv")
+
+print("Shape:", df.shape)
+print("TotalCharges dtype:", df["TotalCharges"].dtype)
+print("Missing TotalCharges:", df["TotalCharges"].isna().sum())

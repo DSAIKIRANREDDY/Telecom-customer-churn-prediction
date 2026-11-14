@@ -111,7 +111,7 @@ model_evaluation:
   report_output_dir: artifacts/reports
   classification_report_file: classification_report.json
   confusion_matrix_file: confusion_matrix.png
-  threshold: 0.63
+  threshold: 0.65
 
 
 model_interpretability:
@@ -140,6 +140,17 @@ model_explainability:
   sample_size: 200
   random_state: 42
   top_n_features: 20
+  shap_beeswarm_plot: shap_beeswarm.png
+  local_explanation_prefix: customer_shap_
+  shap_values_file: shap_values.csv
+  original_feature_shap_report_file: original_feature_shap_report.csv
+  local_explanation_indices:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  top_features_per_customer: 20
 
 
 

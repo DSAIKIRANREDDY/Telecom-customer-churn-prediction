@@ -35,3 +35,8 @@ build-backend = "uv_build"
 [tool.uv.build-backend]
 module-name = "telecom_churn"
 module-root = "src"
+
+[dependency-groups]
+dev = [
+    "dvc>=3.67.1",
+]

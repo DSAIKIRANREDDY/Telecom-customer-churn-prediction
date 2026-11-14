@@ -22,6 +22,16 @@ class DataPreprocessing:
 
             logger.info("Validated dataset loaded. Shape: %s", df.shape)
 
+            df["TotalCharges"] = pd.to_numeric( df["TotalCharges"], errors="coerce")
+            logger.info(
+                "TotalCharges dtype after conversion: %s",
+                df["TotalCharges"].dtype
+            )
+            logger.info(
+                "TotalCharges missing values after conversion: %s",
+                df["TotalCharges"].isna().sum()
+            )
+
             target_column = self.config.target_column
 
             # Step 2: Split into train + validation and test

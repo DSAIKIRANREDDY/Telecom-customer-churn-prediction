@@ -32,6 +32,7 @@ numerical_columns:
   - SeniorCitizen
   - tenure
   - MonthlyCharges
+  - TotalCharges
 
 categorical_columns:
   - gender
@@ -49,7 +50,6 @@ categorical_columns:
   - Contract
   - PaperlessBilling
   - PaymentMethod
-  - TotalCharges
 
 identifier_columns:
   - customerID

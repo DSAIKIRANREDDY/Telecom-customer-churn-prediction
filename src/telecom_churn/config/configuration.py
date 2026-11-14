@@ -250,17 +250,6 @@ class ConfigurationManager:
         return model_evaluation_config
 
 
-    def get_mlflow_config(self) -> MLflowConfig:
-
-        config = self.config.mlflow
-
-        return MLflowConfig(
-            experiment_name=config.experiment_name,
-            tracking_uri=config.tracking_uri
-        )
-
-
-
 
     def get_model_interpretability_config(self) -> ModelInterpretabilityConfig:
         config = self.config.model_interpretability
@@ -284,6 +273,7 @@ class ConfigurationManager:
         )
 
 
+
     def get_model_explainability_config(self) -> ModelExplainabilityConfig:
         config = self.config.model_explainability
 
@@ -298,5 +288,23 @@ class ConfigurationManager:
             local_explanation_dir=config.local_explanation_dir,
             sample_size=config.sample_size,
             random_state=config.random_state,
-            top_n_features=config.top_n_features
+            top_n_features=config.top_n_features,
+            shap_beeswarm_plot=config.shap_beeswarm_plot,
+            local_explanation_prefix=config.local_explanation_prefix,
+            shap_values_file=config.shap_values_file,
+            original_feature_shap_report_file=config.original_feature_shap_report_file,
+            local_explanation_indices=config.local_explanation_indices,
+            top_features_per_customer=config.top_features_per_customer
+        )
+
+
+
+
+    def get_mlflow_config(self) -> MLflowConfig:
+
+        config = self.config.mlflow
+
+        return MLflowConfig(
+            experiment_name=config.experiment_name,
+            tracking_uri=config.tracking_uri
         )

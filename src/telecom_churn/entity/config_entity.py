@@ -118,7 +118,12 @@ class ModelExplainabilityConfig:
     sample_size: int
     random_state: int
     top_n_features: int
-
+    shap_beeswarm_plot: str
+    local_explanation_prefix: str
+    shap_values_file: str
+    original_feature_shap_report_file: str
+    local_explanation_indices: list[int]
+    top_features_per_customer: int
 
 
 
