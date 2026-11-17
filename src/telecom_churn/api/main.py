@@ -1,12 +1,18 @@
-import pandas as pd
-import re
 
+import re
 from pathlib import Path
-from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
-from pathlib import Path
-from fastapi import UploadFile, File, HTTPException
-from fastapi import FastAPI, Request
+
+import pandas as pd
+
+from fastapi import (
+    FastAPI,
+    Request,
+    UploadFile,
+    File,
+    HTTPException
+)
+from fastapi.responses import FileResponse
 from pydantic import ValidationError
 from pandas.errors import EmptyDataError, ParserError
 
@@ -14,19 +20,32 @@ from telecom_churn.inference.model_loader import ModelLoader
 from telecom_churn.inference.predictor import ChurnPredictor
 from telecom_churn.inference.explainability import CustomerExplainability
 from telecom_churn.utils.logger import get_logger
-from fastapi import FastAPI, Request
-from telecom_churn.api.schemas import (CustomerRequest, PredictionResponse)
+from telecom_churn.api.schemas import (
+    CustomerRequest,
+    PredictionResponse
+)
+
 
 logger = get_logger(__name__)
+
+
+# --------------------------------------------------
+# CONFIGURATION
+# --------------------------------------------------
 
 MODEL_PATH = Path(
     "artifacts/models/tuned/xgboost_tuned_model.pkl"
 )
-EXPLANATION_DIR = Path(
-    "artifacts/reports/explainability/inference"
-)
+
+EXPLANATION_DIR = Path("artifacts/reports/explainability/inference")
+
 MAX_BATCH_SIZE = 5000
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB
+
+
+# --------------------------------------------------
+# FILE VALIDATION
+# --------------------------------------------------
 
 def validate_upload_size(file: UploadFile) -> None:
 
@@ -40,6 +59,139 @@ def validate_upload_size(file: UploadFile) -> None:
             detail="Uploaded file exceeds the maximum allowed size of 10 MB"
         )
 
+
+def load_and_validate_batch_csv( file: UploadFile, predictor: ChurnPredictor) -> pd.DataFrame:
+
+    """
+    Read and validate an uploaded customer CSV.
+
+    Validates:
+    1. File extension
+    2. File size
+    3. CSV readability
+    4. Empty records
+    5. Maximum batch size
+    6. Required and unexpected columns
+    7. Individual customer records using Pydantic
+    """
+
+    if not file.filename or not file.filename.lower().endswith(".csv"):
+        raise HTTPException(status_code=400,detail="Please upload a CSV file")
+
+    validate_upload_size(file)
+
+    # Read CSV
+    try:
+
+        customers_df = pd.read_csv(file.file)
+
+    except EmptyDataError:
+
+        raise HTTPException(status_code=400,detail="Uploaded CSV is empty")
+
+    except (ParserError, UnicodeDecodeError):
+
+        raise HTTPException(
+            status_code=400,
+            detail="Unable to read CSV. Please check the file format."
+        )
+
+    if customers_df.empty:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded CSV contains no customer records"
+        )
+
+    if customers_df.columns.duplicated().any():
+        raise HTTPException(
+            status_code=422,
+            detail="CSV contains duplicate column names"
+        )
+
+    # Validate batch size
+    if len(customers_df) > MAX_BATCH_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail=(
+                f"Batch size exceeds the maximum limit "
+                f"of {MAX_BATCH_SIZE} customers"
+            )
+        )
+
+    logger.info(
+        "CSV loaded successfully. Shape: %s",
+        customers_df.shape
+    )
+
+    # Validate columns
+    expected_columns = set(predictor.expected_features)
+
+    allowed_columns = expected_columns | {"customerID"}
+
+    missing_columns = (
+        expected_columns - set(customers_df.columns)
+    )
+
+    unexpected_columns = (
+        set(customers_df.columns) - allowed_columns
+    )
+
+    if missing_columns:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "message": "Required customer columns are missing",
+                "missing_columns": sorted(missing_columns)
+            }
+        )
+
+    if unexpected_columns:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "message": "Unexpected customer columns found",
+                "unexpected_columns": sorted(unexpected_columns)
+            }
+        )
+
+    # Validate individual records
+    validation_errors = []
+
+    for index, row in customers_df.iterrows():
+
+        try:
+
+            CustomerRequest.model_validate(row.to_dict())
+
+        except ValidationError as error:
+
+            for item in error.errors():
+
+                validation_errors.append({
+                    "row": int(index) + 2,
+                    "field": ".".join(
+                        str(x) for x in item["loc"]
+                    ),
+                    "message": item["msg"]
+                })
+
+    if validation_errors:
+
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "message": "CSV contains invalid customer data",
+                "errors": validation_errors
+            }
+        )
+
+    return customers_df
+
+
+# --------------------------------------------------
+# APPLICATION LIFESPAN
+# --------------------------------------------------
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
@@ -51,18 +203,19 @@ async def lifespan(app: FastAPI):
     model_loader.load_model()
     model_loader.load_explainer()
 
-    # Initialize inference services
+    # Initialize prediction service
     predictor = ChurnPredictor(
         model_loader=model_loader,
         threshold=0.65
     )
 
+    # Initialize explainability service
     customer_explainer = CustomerExplainability(
         model_loader=model_loader,
         output_dir=EXPLANATION_DIR
     )
 
-    # Make services available to API endpoints
+    # Store services in application state
     app.state.model_loader = model_loader
     app.state.predictor = predictor
     app.state.customer_explainer = customer_explainer
@@ -74,6 +227,10 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down Telecom Churn API")
 
 
+# --------------------------------------------------
+# FASTAPI APPLICATION
+# --------------------------------------------------
+
 app = FastAPI(
     title="Telecom Customer Churn Prediction API",
     description="API for customer churn prediction and explainability",
@@ -81,6 +238,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+
+# --------------------------------------------------
+# ROOT ENDPOINT
+# --------------------------------------------------
 
 @app.get("/")
 def root():
@@ -91,28 +252,28 @@ def root():
     }
 
 
+# --------------------------------------------------
+# HEALTH CHECK ENDPOINTS
+# --------------------------------------------------
 
 @app.get("/health")
 def health():
-    # Check whether the model is loaded
+
     model_loaded = (
         hasattr(app.state, "model_loader")
         and app.state.model_loader.model is not None
     )
 
-    # Check whether the SHAP explainer is initialized
     explainer_loaded = (
         hasattr(app.state, "model_loader")
         and app.state.model_loader.explainer is not None
     )
 
-    # Check whether the predictor is initialized
     predictor_loaded = (
         hasattr(app.state, "predictor")
         and app.state.predictor is not None
     )
 
-    # Determine overall application health
     is_healthy = (
         model_loaded
         and explainer_loaded
@@ -135,7 +296,6 @@ def health_live():
     return {
         "status": "alive"
     }
-
 
 
 @app.get("/health/ready")
@@ -163,6 +323,7 @@ def health_ready():
     )
 
     if not is_ready:
+
         raise HTTPException(
             status_code=503,
             detail={
@@ -185,115 +346,42 @@ def health_ready():
     }
 
 
+# --------------------------------------------------
+# SINGLE CUSTOMER PREDICTION
+# --------------------------------------------------
 
 @app.post( "/predict", response_model=PredictionResponse)
 def predict_customer( customer: CustomerRequest, request: Request):
+
     logger.info("Received customer prediction request")
 
-    # Get the already initialized predictor
     predictor = request.app.state.predictor
 
-    # Convert validated Pydantic data into a dictionary
     customer_data = customer.model_dump(
         exclude_none=True
     )
 
-    # Generate prediction
     result = predictor.predict_single(customer_data)
 
-    logger.info(
-        "Customer prediction completed: %s",
-        result.get("customerID", "unknown")
-    )
+    logger.info("Customer prediction completed: %s",result.get("customerID", "unknown"))
 
     return result
 
 
-
+# --------------------------------------------------
+# BATCH CUSTOMER PREDICTION
+# --------------------------------------------------
 
 @app.post("/predict/batch")
-def predict_batch(request: Request, file: UploadFile = File(...)):
+def predict_batch(request: Request,file: UploadFile = File(...)):
 
-    logger.info("Received batch prediction request: %s", file.filename)
+    logger.info("Received batch prediction request: %s",file.filename)
 
-    if not file.filename or not file.filename.lower().endswith(".csv"):
-        raise HTTPException(
-            status_code=400,
-            detail="Please upload a CSV file"
-        )
-    validate_upload_size(file)
     try:
-        # Read uploaded CSV
-        try:
-            customers_df = pd.read_csv(file.file)
-        except EmptyDataError:
-            raise HTTPException(
-                status_code=400,
-                detail="Uploaded CSV is empty"
-            )
-        except (ParserError, UnicodeDecodeError):
-            raise HTTPException(
-                status_code=400,
-                detail="Unable to read CSV. Please check the file format."
-            )
-
-        if customers_df.empty:
-            raise HTTPException(
-                status_code=400,
-                detail="Uploaded CSV contains no customer records"
-            )
-
-        if len(customers_df) > MAX_BATCH_SIZE:
-            raise HTTPException(
-                status_code=413,
-                detail=f"Batch size exceeds the maximum limit of {MAX_BATCH_SIZE} customers"
-            )
-
-        logger.info("Batch input loaded. Shape: %s", customers_df.shape)
 
         predictor = request.app.state.predictor
 
-        # Validate CSV columns
-        expected_columns = set(predictor.expected_features)
-        allowed_columns = expected_columns | {"customerID"}
-
-        missing_columns = expected_columns - set(customers_df.columns)
-        unexpected_columns = set(customers_df.columns) - allowed_columns
-
-        if missing_columns:
-            raise HTTPException(
-                status_code=422,
-                detail=f"Missing required columns: {sorted(missing_columns)}"
-            )
-
-        if unexpected_columns:
-            raise HTTPException(
-                status_code=422,
-                detail=f"Unexpected columns: {sorted(unexpected_columns)}"
-            )
-
-        # Validate each customer record using Pydantic
-        validation_errors = []
-
-        for index, row in customers_df.iterrows():
-            try:
-                CustomerRequest.model_validate(row.to_dict())
-            except ValidationError as error:
-                for item in error.errors():
-                    validation_errors.append({
-                        "row": int(index) + 2,
-                        "field": ".".join(str(x) for x in item["loc"]),
-                        "message": item["msg"]
-                    })
-
-        if validation_errors:
-            raise HTTPException(
-                status_code=422,
-                detail={
-                    "message": "CSV contains invalid customer data",
-                    "errors": validation_errors
-                }
-            )
+        customers_df = load_and_validate_batch_csv(file,predictor)
 
         # Generate predictions
         results = predictor.predict_batch(customers_df)
@@ -314,11 +402,22 @@ def predict_batch(request: Request, file: UploadFile = File(...)):
         raise
 
     except (ValueError, TypeError) as error:
-        logger.exception("Invalid batch prediction input")
-        raise HTTPException(status_code=400, detail=str(error))
+
+        logger.exception(
+            "Invalid batch prediction input"
+        )
+
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )
 
     except Exception:
-        logger.exception("Batch prediction failed")
+
+        logger.exception(
+            "Batch prediction failed"
+        )
+
         raise HTTPException(
             status_code=500,
             detail="Batch prediction failed"
@@ -328,37 +427,28 @@ def predict_batch(request: Request, file: UploadFile = File(...)):
         file.file.close()
 
 
-
+# --------------------------------------------------
+# INDIVIDUAL CUSTOMER SHAP EXPLAINABILITY
+# --------------------------------------------------
 
 @app.post("/explain")
-def explain_customer( customer: CustomerRequest, request: Request):
+def explain_customer(customer: CustomerRequest,request: Request):
 
     logger.info("Received customer explanation request")
 
     customer_explainer = request.app.state.customer_explainer
 
-    customer_data = customer.model_dump(
-        exclude_none=True
-    )
+    customer_data = customer.model_dump(exclude_none=True)
 
     try:
 
-        # Generate customer-level SHAP explanation
-        result = customer_explainer.explain_customer(
-            customer_data
-        )
+        result = customer_explainer.explain_customer(customer_data)
 
-        # Return original-feature contributions
-        contributions = result["contributions"].to_dict(
-            orient="records"
-        )
+        contributions = result["contributions"].to_dict(orient="records")
 
         customer_id = result["customerID"]
 
-        logger.info(
-            "Customer explanation completed: %s",
-            customer_id
-        )
+        logger.info("Customer explanation completed: %s",customer_id)
 
         return {
             "customerID": customer_id,
@@ -369,7 +459,9 @@ def explain_customer( customer: CustomerRequest, request: Request):
 
     except (ValueError, TypeError) as error:
 
-        logger.exception("Invalid explanation request")
+        logger.exception(
+            "Invalid explanation request"
+        )
 
         raise HTTPException(
             status_code=400,
@@ -378,7 +470,9 @@ def explain_customer( customer: CustomerRequest, request: Request):
 
     except Exception:
 
-        logger.exception("Customer explanation failed")
+        logger.exception(
+            "Customer explanation failed"
+        )
 
         raise HTTPException(
             status_code=500,
@@ -386,23 +480,19 @@ def explain_customer( customer: CustomerRequest, request: Request):
         )
 
 
+# --------------------------------------------------
+# INDIVIDUAL CUSTOMER WATERFALL PLOT
+# --------------------------------------------------
 
 @app.get("/explain/plot/{customer_id}")
 def get_customer_explanation_plot(customer_id: str):
 
-    # Apply the same filename sanitization used by SHAP
-    safe_customer_id = re.sub(
-        r"[^A-Za-z0-9_-]",
-        "_",
-        customer_id
-    )
+    safe_customer_id = re.sub( r"[^A-Za-z0-9_-]","_",customer_id)
 
-    plot_path = (
-        EXPLANATION_DIR /
-        f"customer_shap_{safe_customer_id}.png"
-    )
+    plot_path = (EXPLANATION_DIR / f"customer_shap_{safe_customer_id}.png")
 
     if not plot_path.is_file():
+
         raise HTTPException(
             status_code=404,
             detail="Customer explanation plot not found"
@@ -412,4 +502,110 @@ def get_customer_explanation_plot(customer_id: str):
         path=plot_path,
         media_type="image/png",
         filename=f"customer_shap_{safe_customer_id}.png"
+    )
+
+
+# --------------------------------------------------
+# BATCH SHAP EXPLAINABILITY
+# --------------------------------------------------
+
+@app.post("/explain/batch")
+def explain_batch(request: Request,file: UploadFile = File(...)):
+
+    logger.info("Received batch explanation request: %s",file.filename)
+
+    try:
+
+        predictor = request.app.state.predictor
+
+        # Reuse common CSV validation
+        customers_df = load_and_validate_batch_csv(file,predictor)
+
+        customer_explainer = (request.app.state.customer_explainer)
+
+        # Generate batch SHAP explanations
+        result = customer_explainer.explain_batch(customers_df)
+
+        feature_importance = (result["feature_importance"].to_dict(orient="records"))
+
+        logger.info(
+            "Batch explanation completed for %s customers",
+            result["total_customers"]
+        )
+
+        return {
+            "total_customers": result["total_customers"],
+            "beeswarm_plot_url": (
+                "/explain/batch/plot/beeswarm"
+            ),
+            "feature_importance_plot_url": (
+                "/explain/batch/plot/importance"
+            ),
+            "feature_importance": feature_importance
+        }
+
+    except HTTPException:
+        raise
+
+    except (ValueError, TypeError) as error:
+
+        logger.exception(
+            "Invalid batch explanation input"
+        )
+
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )
+
+    except Exception:
+
+        logger.exception(
+            "Batch SHAP explanation failed"
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Batch explanation failed"
+        )
+
+    finally:
+        file.file.close()
+
+
+# --------------------------------------------------
+# BATCH SHAP PLOT RETRIEVAL
+# --------------------------------------------------
+
+@app.get("/explain/batch/plot/{plot_type}")
+def get_batch_explanation_plot(plot_type: str):
+
+    plot_files = {
+        "beeswarm": "batch_shap_beeswarm.png",
+        "importance": "batch_shap_feature_importance.png"
+    }
+
+    if plot_type not in plot_files:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Invalid batch explanation plot type"
+        )
+
+    plot_path = (
+        EXPLANATION_DIR /
+        plot_files[plot_type]
+    )
+
+    if not plot_path.is_file():
+
+        raise HTTPException(
+            status_code=404,
+            detail="Batch explanation plot not found"
+        )
+
+    return FileResponse(
+        path=plot_path,
+        media_type="image/png",
+        filename=plot_files[plot_type]
     )

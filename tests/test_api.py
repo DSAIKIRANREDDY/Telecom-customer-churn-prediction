@@ -350,8 +350,10 @@ TEST-001,Male,0,Yes,No,12,Yes,No,DSL,No,Yes,No,No,Yes,No,Yes,Electronic check,70
 
     response_data = response.json()
 
-    assert "Missing required columns" in response_data["detail"]
-    assert "Contract" in response_data["detail"]
+    assert response_data["detail"]["message"] == (
+    "Required customer columns are missing"
+    )
+    assert "Contract" in response_data["detail"]["missing_columns"]
 
 
 
@@ -375,8 +377,11 @@ TEST-001,Male,0,Yes,No,12,Yes,No,DSL,No,Yes,No,No,Yes,No,Month-to-month,Yes,Elec
 
     response_data = response.json()
 
-    assert "Unexpected columns" in response_data["detail"]
-    assert "CustomerAge" in response_data["detail"]
+    assert response_data["detail"]["message"] == (
+    "Unexpected customer columns found"
+    )
+
+    assert "CustomerAge" in response_data["detail"]["unexpected_columns"]
 
 
 

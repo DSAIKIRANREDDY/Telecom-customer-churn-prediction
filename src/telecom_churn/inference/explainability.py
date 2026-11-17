@@ -331,3 +331,274 @@ class CustomerExplainability:
                 "Customer-level explanation failed"
             )
             raise
+
+
+
+    
+    def _aggregate_batch_contributions(self, shap_values):
+
+        """
+        Aggregate transformed SHAP contributions into original features.
+
+        Input shape: (customers, transformed_features)
+        Output shape: (customers, original_features)
+        """
+
+        aggregated_values = {}
+
+        for original_feature in dict.fromkeys(
+            self.feature_mapping.values()
+        ):
+
+            transformed_indices = [
+                index
+                for index, feature in enumerate(self.feature_names)
+                if self.feature_mapping[feature] == original_feature
+            ]
+
+            aggregated_values[original_feature] = shap_values[
+                :, transformed_indices
+            ].sum(axis=1)
+
+        return pd.DataFrame(aggregated_values)
+
+
+
+
+    def _generate_batch_beeswarm_plot(self,shap_values,transformed_data):
+
+        if hasattr(transformed_data, "toarray"):
+            transformed_data = transformed_data.toarray()
+        else:
+            transformed_data = np.asarray(transformed_data)
+
+        # Remove transformer prefixes from feature names
+        readable_feature_names = [
+            feature.replace("numerical__", "")
+                   .replace("categorical__", "")
+            for feature in self.feature_names
+        ]
+
+        explanation = shap.Explanation(
+            values=shap_values,
+            data=transformed_data,
+            feature_names=readable_feature_names
+        )
+
+        plt.figure(figsize=(12, 9))
+
+        shap.plots.beeswarm(explanation,max_display=self.top_n_features,show=False)
+
+        plt.title(
+            "Batch Customer SHAP Summary",
+            fontsize=14
+        )
+
+        plt.tight_layout()
+
+        self.output_dir.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        plot_path = (
+            self.output_dir / "batch_shap_beeswarm.png"
+        )
+
+        plt.savefig(
+            plot_path,
+            dpi=300,
+            bbox_inches="tight"
+        )
+
+        plt.close()
+
+        logger.info(
+            "Batch SHAP beeswarm plot saved: %s",
+            plot_path
+        )
+
+        return plot_path
+
+
+
+
+    def _generate_batch_feature_importance(self,aggregated_shap_values):
+
+        # Calculate mean absolute SHAP contribution
+        importance = (
+            aggregated_shap_values.abs().mean()
+            .sort_values(ascending=True)
+        )
+
+        importance = importance.tail(
+            self.top_n_features
+        )
+
+        plt.figure(figsize=(11, 8))
+
+        importance.plot(
+            kind="barh"
+        )
+
+        plt.xlabel("Mean Absolute SHAP Value")
+        plt.ylabel("Customer Features")
+
+        plt.title(
+            "Batch Customer Feature Importance",
+            fontsize=14
+        )
+
+        plt.tight_layout()
+
+        self.output_dir.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        plot_path = (
+            self.output_dir / "batch_shap_feature_importance.png"
+        )
+
+        plt.savefig(
+            plot_path,
+            dpi=300,
+            bbox_inches="tight"
+        )
+
+        plt.close()
+
+        logger.info(
+            "Batch SHAP feature importance plot saved: %s",
+            plot_path
+        )
+
+        return plot_path
+
+
+
+
+    def explain_batch(self, customers_df: pd.DataFrame):
+
+        try:
+
+            logger.info(
+                "Batch-level SHAP explanation started"
+            )
+
+            if not isinstance(customers_df, pd.DataFrame):
+                raise TypeError(
+                    "Input must be a pandas DataFrame"
+                )
+
+            if customers_df.empty:
+                raise ValueError(
+                    "Batch input cannot be empty"
+                )
+
+            if customers_df.columns.duplicated().any():
+                raise ValueError(
+                    "Duplicate input columns found"
+                )
+
+            # Remove customer identifier
+            X_batch = customers_df.drop(
+                columns=["customerID"],
+                errors="ignore"
+            )
+
+            missing_features = [
+                col for col in self.expected_features
+                if col not in X_batch.columns
+            ]
+
+            unexpected_features = [
+                col for col in X_batch.columns
+                if col not in self.expected_features
+            ]
+
+            if missing_features:
+                raise ValueError(
+                    f"Missing features: {missing_features}"
+                )
+
+            if unexpected_features:
+                raise ValueError(
+                    f"Unexpected features: {unexpected_features}"
+                )
+
+            X_batch = X_batch[self.expected_features]
+
+            # Transform using the existing fitted preprocessor
+            X_transformed = self.preprocessor.transform(
+                X_batch
+            )
+
+            # Calculate SHAP values for all customers
+            shap_values = self._get_positive_class_shap_values(
+                X_transformed
+            )
+
+            if (
+                shap_values.ndim != 2
+                or shap_values.shape[0] != len(X_batch)
+                or shap_values.shape[1] != len(self.feature_names)
+            ):
+                raise ValueError(
+                    "Unexpected batch SHAP output shape"
+                )
+
+            # Generate beeswarm plot using transformed features
+            beeswarm_path = self._generate_batch_beeswarm_plot(
+                shap_values,
+                X_transformed
+            )
+
+            # Aggregate contributions to original features
+            aggregated_shap_values = (
+                self._aggregate_batch_contributions(
+                    shap_values
+                )
+            )
+
+            # Generate original-feature importance chart
+            importance_path = (
+                self._generate_batch_feature_importance(
+                    aggregated_shap_values
+                )
+            )
+
+            # Calculate feature importance report
+            importance_report = (
+                aggregated_shap_values.abs()
+                .mean()
+                .sort_values(ascending=False)
+                .rename("mean_absolute_shap")
+                .reset_index()
+            )
+
+            importance_report.rename(
+                columns={"index": "feature"},
+                inplace=True
+            )
+
+            logger.info(
+                "Batch-level SHAP explanation completed for %s customers",
+                len(X_batch)
+            )
+
+            return {
+                "total_customers": len(X_batch),
+                "beeswarm_plot_path": str(beeswarm_path),
+                "feature_importance_plot_path": str(importance_path),
+                "feature_importance": importance_report,
+                "aggregated_shap_values": aggregated_shap_values
+            }
+
+        except Exception:
+
+            logger.exception(
+                "Batch-level SHAP explanation failed"
+            )
+
+            raise
