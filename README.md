@@ -248,4 +248,163 @@ telecom-churn-prediction/
 │
 ├── data/
 │   ├── interim/
-│   ├── validated
+│   ├── validated/
+│   ├── processed/
+│   └── featured/
+│
+├── artifacts/
+│   ├── models/
+│   ├── reports/
+│   └── logs/
+│
+├── frontend/
+│   ├── app.py
+│   ├── components/
+│   │   ├── dashboard.py
+│   │   ├── single_prediction.py
+│   │   ├── batch_prediction.py
+│   │   └── about.py
+│   ├── services/
+│   │   └── api_client.py
+│   └── utils/
+│
+├── src/
+│   └── telecom_churn/
+│       ├── api/
+│       ├── components/
+│       ├── config/
+│       ├── constants/
+│       ├── entity/
+│       ├── inference/
+│       └── utils/
+│
+├── tests/
+├── test/
+├── Notebooks/
+├── scripts/
+├── pyproject.toml
+├── uv.lock
+├── .gitignore
+└── README.md
+```
+
+## Local Setup and Execution
+
+### Prerequisites
+
+- Python 3.11
+- uv
+- Git
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/DSAIKIRANREDDY/Telecom-customer-churn-prediction.git
+
+cd Telecom-customer-churn-prediction
+```
+
+### 2. Install dependencies
+
+```bash
+uv sync
+```
+
+### 3. Prepare project data and model
+
+Ensure the required dataset and trained model artifact are available locally.
+
+The inference service expects the trained model at:
+
+```text
+artifacts/models/tuned/xgboost_tuned_model.pkl
+```
+
+Data and model artifacts are excluded from ordinary Git tracking and are intended to be managed separately. The DVC remote and complete artifact-retrieval workflow still need to be configured.
+
+### 4. Start the FastAPI backend
+
+```bash
+uv run uvicorn telecom_churn.api.main:app --reload --app-dir src
+```
+
+Backend:
+
+```text
+http://127.0.0.1:8000
+```
+
+API documentation:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+### 5. Start the Streamlit frontend
+
+Open another terminal from the project root:
+
+```bash
+uv run streamlit run frontend/app.py
+```
+
+The application will be available at:
+
+```text
+http://localhost:8501
+```
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/` | API information |
+| GET | `/health` | Backend health |
+| GET | `/health/live` | Liveness check |
+| GET | `/health/ready` | Readiness check |
+| POST | `/predict` | Single customer prediction |
+| POST | `/predict/batch` | Batch customer prediction |
+| POST | `/explain` | Individual SHAP explanation |
+| GET | `/explain/plot/{customer_id}` | Retrieve individual SHAP plot |
+| POST | `/explain/batch` | Batch SHAP analysis |
+| GET | `/explain/batch/plot/{plot_type}` | Retrieve batch SHAP plots |
+
+Interactive API documentation is available at `/docs`.
+
+## Testing
+
+The project includes tests for:
+
+- Data ingestion and validation
+- Data preprocessing
+- Feature engineering
+- Model training and evaluation
+- Model tuning
+- Threshold optimization
+- Model interpretability
+- SHAP explainability
+- FastAPI endpoints
+- Batch prediction and explainability
+
+Run the test suite:
+
+```bash
+uv run pytest
+```
+
+## Future Improvements
+
+- Complete DVC remote configuration and data versioning.
+- Integrate MLflow for experiment tracking and model management.
+- Dockerize the FastAPI backend and Streamlit frontend.
+- Deploy the application.
+- Implement CI/CD workflows.
+- Add production monitoring and model-drift detection.
+
+## Author
+
+**Kiran Reddy**
+
+GitHub: [DSAIKIRANREDDY](https://github.com/DSAIKIRANREDDY)
+
+Project Repository: [Telecom Customer Churn Prediction](https://github.com/DSAIKIRANREDDY/Telecom-customer-churn-prediction)
