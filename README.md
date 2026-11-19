@@ -403,7 +403,7 @@ uv run pytest
 
 ## Author
 
-**Kiran Reddy**
+**Dasappagari Sai Kiran Reddy**
 
 GitHub: [DSAIKIRANREDDY](https://github.com/DSAIKIRANREDDY)
 
