@@ -4,7 +4,7 @@ import streamlit as st
 from components.dashboard import show_dashboard
 from components.single_prediction import show_single_prediction
 from components.batch_prediction import show_batch_prediction
-
+from components.about import show_about
 
 # --------------------------------------------------
 # Page Configuration
@@ -64,7 +64,4 @@ elif selected_page == "Batch Prediction":
     show_batch_prediction()
 
 elif selected_page == "About":
-
-    st.title("ℹ️ About This Project")
-
-    st.info("Project information will be displayed here.")
+    show_about()
