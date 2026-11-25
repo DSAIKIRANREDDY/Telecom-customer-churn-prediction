@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import requests
 
 from services.api_client import (
@@ -218,7 +219,7 @@ def show_single_prediction():
 
         submitted = st.form_submit_button(
             "Predict Customer Churn",
-            use_container_width=True,
+            width="stretch",
             type="primary"
         )
 
@@ -365,22 +366,29 @@ def show_single_prediction():
             st.image(
                 plot_bytes,
                 caption="Individual Customer SHAP Waterfall Plot",
-                use_container_width=True
+                width="stretch"
             )
 
             st.subheader("Feature Contributions")
 
-            contributions = explanation["contributions"]
-
-            st.dataframe(
-                contributions,
-                use_container_width=True,
-                hide_index=True
+            contributions = pd.DataFrame(
+                explanation["contributions"]
             )
+
+            if "feature_value" in contributions.columns:
+                contributions["feature_value"] = (
+                    contributions["feature_value"].astype("string")
+                )
 
             st.caption(
                 "Positive SHAP values push the model output towards churn. "
                 "Negative SHAP values push it away from churn. "
                 "The waterfall plot uses the model's raw output scale, "
                 "not probability."
+            )
+
+            st.dataframe(
+                contributions,
+                width="stretch",
+                hide_index=True
             )

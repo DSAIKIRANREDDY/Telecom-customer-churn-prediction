@@ -162,7 +162,7 @@ def show_batch_prediction():
 
             st.dataframe(
                 preview_df.head(10),
-                use_container_width=True
+                width="stretch"
             )
 
             if len(preview_df) > 5000:
@@ -193,7 +193,7 @@ def show_batch_prediction():
         if st.button(
             "Generate Batch Predictions",
             type="primary",
-            use_container_width=True
+            width="stretch"
         ):
 
             try:
@@ -284,7 +284,7 @@ def show_batch_prediction():
             results_df.style.format(
                 {"churn_probability": "{:.2%}"}
             ),
-            use_container_width=True
+            width="stretch"
         )
 
         csv_data = results_df.to_csv(index=False).encode("utf-8")
@@ -294,7 +294,7 @@ def show_batch_prediction():
             data=csv_data,
             file_name="customer_churn_predictions.csv",
             mime="text/csv",
-            use_container_width=True
+            width="stretch"
         )
 
         # --------------------------------------------------
@@ -313,7 +313,7 @@ def show_batch_prediction():
 
             if st.button(
                 "Generate Batch SHAP Analysis",
-                use_container_width=True
+                width="stretch"
             ):
 
                 try:
@@ -391,7 +391,7 @@ def show_batch_prediction():
 
             st.image(
                 st.session_state["batch_beeswarm_plot"],
-                use_container_width=True
+                width="stretch"
             )
 
             # SHAP Feature Importance plot
@@ -404,7 +404,7 @@ def show_batch_prediction():
 
             st.image(
                 st.session_state["batch_importance_plot"],
-                use_container_width=True
+                width="stretch"
             )
 
             # Feature importance table
@@ -429,7 +429,7 @@ def show_batch_prediction():
 
                 st.dataframe(
                     importance_df,
-                    use_container_width=True,
+                    width="stretch",
                     hide_index=True
                 )
 
@@ -539,7 +539,7 @@ def show_batch_prediction():
             st.image(
                 st.session_state["batch_selected_plot"],
                 caption="Individual Customer SHAP Waterfall Plot",
-                use_container_width=True
+                width="stretch"
             )
 
             st.subheader("Feature Contributions")
