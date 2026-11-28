@@ -1,0 +1,42 @@
+
+services:
+
+  # FastAPI backend
+  api:
+    image: telecom-churn-api:v1
+    container_name: telecom-churn-api
+    restart: unless-stopped
+
+    environment:
+      API_KEY: ${API_KEY:?API_KEY is missing from .env}
+
+    networks:
+      - telecom-network
+
+
+  # Cloudflare Tunnel Manager
+  cloudflare-manager:
+    build:
+      context: ./docker/cloudflare-manager
+      dockerfile: Dockerfile
+
+    container_name: telecom-cloudflare-manager
+    restart: unless-stopped
+
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+
+    environment:
+      GITHUB_CONFIG_WRITE_TOKEN: ${GITHUB_CONFIG_WRITE_TOKEN:?GITHUB_CONFIG_WRITE_TOKEN is missing from .env}
+
+    depends_on:
+      - api
+
+    networks:
+      - telecom-network
+
+
+networks:
+  telecom-network:
+    external: true

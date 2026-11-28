@@ -10,12 +10,14 @@ from fastapi import (
     Request,
     UploadFile,
     File,
-    HTTPException
+    HTTPException,
+    Security
 )
 from fastapi.responses import FileResponse
 from pydantic import ValidationError
 from pandas.errors import EmptyDataError, ParserError
 
+from telecom_churn.api.security import verify_api_key
 from telecom_churn.inference.model_loader import ModelLoader
 from telecom_churn.inference.predictor import ChurnPredictor
 from telecom_churn.inference.explainability import CustomerExplainability
@@ -257,7 +259,7 @@ def root():
 # --------------------------------------------------
 
 @app.get("/health")
-def health():
+def health(_: str = Security(verify_api_key)):
 
     model_loaded = (
         hasattr(app.state, "model_loader")
@@ -299,7 +301,7 @@ def health_live():
 
 
 @app.get("/health/ready")
-def health_ready():
+def health_ready(_: str = Security(verify_api_key)):
 
     model_loaded = (
         hasattr(app.state, "model_loader")
@@ -351,7 +353,7 @@ def health_ready():
 # --------------------------------------------------
 
 @app.post( "/predict", response_model=PredictionResponse)
-def predict_customer( customer: CustomerRequest, request: Request):
+def predict_customer( customer: CustomerRequest, request: Request,_: str = Security(verify_api_key)):
 
     logger.info("Received customer prediction request")
 
@@ -373,7 +375,7 @@ def predict_customer( customer: CustomerRequest, request: Request):
 # --------------------------------------------------
 
 @app.post("/predict/batch")
-def predict_batch(request: Request,file: UploadFile = File(...)):
+def predict_batch(request: Request,file: UploadFile = File(...),_: str = Security(verify_api_key)):
 
     logger.info("Received batch prediction request: %s",file.filename)
 
@@ -432,7 +434,7 @@ def predict_batch(request: Request,file: UploadFile = File(...)):
 # --------------------------------------------------
 
 @app.post("/explain")
-def explain_customer(customer: CustomerRequest,request: Request):
+def explain_customer(customer: CustomerRequest,request: Request,_: str = Security(verify_api_key)):
 
     logger.info("Received customer explanation request")
 
@@ -485,7 +487,7 @@ def explain_customer(customer: CustomerRequest,request: Request):
 # --------------------------------------------------
 
 @app.get("/explain/plot/{customer_id}")
-def get_customer_explanation_plot(customer_id: str):
+def get_customer_explanation_plot(customer_id: str,_: str = Security(verify_api_key)):
 
     safe_customer_id = re.sub( r"[^A-Za-z0-9_-]","_",customer_id)
 
@@ -510,7 +512,7 @@ def get_customer_explanation_plot(customer_id: str):
 # --------------------------------------------------
 
 @app.post("/explain/batch")
-def explain_batch(request: Request,file: UploadFile = File(...)):
+def explain_batch(request: Request,file: UploadFile = File(...),_: str = Security(verify_api_key)):
 
     logger.info("Received batch explanation request: %s",file.filename)
 
@@ -578,7 +580,7 @@ def explain_batch(request: Request,file: UploadFile = File(...)):
 # --------------------------------------------------
 
 @app.get("/explain/batch/plot/{plot_type}")
-def get_batch_explanation_plot(plot_type: str):
+def get_batch_explanation_plot(plot_type: str,_: str = Security(verify_api_key)):
 
     plot_files = {
         "beeswarm": "batch_shap_beeswarm.png",
