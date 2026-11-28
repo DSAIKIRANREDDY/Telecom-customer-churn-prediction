@@ -106,9 +106,10 @@ def show_dashboard():
 
             st.json(health)
 
-    except requests.exceptions.RequestException:
-
+    except requests.exceptions.RequestException as e:
         st.error(
             "Unable to connect to FastAPI. "
             "Please make sure the backend is running."
         )
+
+        st.caption(f"Diagnostic error: {type(e).__name__}: {e}")
