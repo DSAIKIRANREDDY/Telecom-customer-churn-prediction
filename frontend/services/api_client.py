@@ -1,15 +1,41 @@
+
 import os
 import requests
+import streamlit as st
 
-API_BASE_URL = os.getenv(
+
+def get_config(key: str, default=None):
+    """Read configuration from environment variables or Streamlit Secrets."""
+    value = os.getenv(key)
+
+    if value:
+        return value
+
+    try:
+        return st.secrets.get(key, default)
+    except Exception:
+        return default
+
+
+API_BASE_URL = get_config(
     "API_BASE_URL",
     "http://127.0.0.1:8000"
+).rstrip("/")
+
+API_KEY = get_config("API_KEY")
+
+# Attach authentication to every protected API request
+API_HEADERS = (
+    {"X-API-Key": API_KEY}
+    if API_KEY
+    else {}
 )
 
 
 def check_backend_health():
     response = requests.get(
         f"{API_BASE_URL}/health/ready",
+        headers=API_HEADERS,
         timeout=10
     )
 
@@ -21,6 +47,7 @@ def predict_single(customer_data: dict):
     response = requests.post(
         f"{API_BASE_URL}/predict",
         json=customer_data,
+        headers=API_HEADERS,
         timeout=30
     )
 
@@ -40,12 +67,9 @@ def predict_batch(file):
     response = requests.post(
         f"{API_BASE_URL}/predict/batch",
         files=files,
+        headers=API_HEADERS,
         timeout=120
     )
-
-    if not response.ok:
-        print("API Error:", response.status_code)
-        print("Error details:", response.text)
 
     response.raise_for_status()
     return response.json()
@@ -55,6 +79,7 @@ def explain_customer(customer_data: dict):
     response = requests.post(
         f"{API_BASE_URL}/explain",
         json=customer_data,
+        headers=API_HEADERS,
         timeout=60
     )
 
@@ -65,6 +90,7 @@ def explain_customer(customer_data: dict):
 def get_explanation_plot(customer_id: str):
     response = requests.get(
         f"{API_BASE_URL}/explain/plot/{customer_id}",
+        headers=API_HEADERS,
         timeout=30
     )
 
@@ -72,11 +98,9 @@ def get_explanation_plot(customer_id: str):
     return response.content
 
 
-
 def explain_batch(file):
-    """
-    Generate batch-level SHAP explanations.
-    """
+    """Generate batch-level SHAP explanations."""
+
     files = {
         "file": (
             file.name,
@@ -88,22 +112,17 @@ def explain_batch(file):
     response = requests.post(
         f"{API_BASE_URL}/explain/batch",
         files=files,
+        headers=API_HEADERS,
         timeout=180
     )
 
     response.raise_for_status()
-
     return response.json()
 
 
 def get_batch_explanation_plot(plot_type: str):
-    """
-    Retrieve batch-level SHAP plots.
+    """Retrieve batch-level SHAP plots."""
 
-    Supported plot types:
-    - beeswarm
-    - importance
-    """
     if plot_type not in ["beeswarm", "importance"]:
         raise ValueError(
             "Invalid plot type. Use 'beeswarm' or 'importance'."
@@ -111,9 +130,9 @@ def get_batch_explanation_plot(plot_type: str):
 
     response = requests.get(
         f"{API_BASE_URL}/explain/batch/plot/{plot_type}",
+        headers=API_HEADERS,
         timeout=30
     )
 
     response.raise_for_status()
-
     return response.content
